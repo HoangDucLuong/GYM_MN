@@ -1,0 +1,71 @@
+﻿@model GYM_MN_FE_MEMBER.Models.MemberViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Profile</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-6">
+            @Html.DisplayNameFor(model => model.FullName)
+        </dt>
+        <dd class = "col-sm-6">
+            @Html.DisplayFor(model => model.FullName)
+        </dd>
+        <dt class = "col-sm-6">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class = "col-sm-6">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class = "col-sm-6">
+            @Html.DisplayNameFor(model => model.Phone)
+        </dt>
+        <dd class = "col-sm-6">
+            @Html.DisplayFor(model => model.Phone)
+        </dd>
+        <dt class = "col-sm-6">
+            @Html.DisplayNameFor(model => model.Gender)
+        </dt>
+        <dd class = "col-sm-6">
+            @Html.DisplayFor(model => model.Gender)
+        </dd>
+        <dt class="col-sm-6">
+            @Html.DisplayNameFor(model => model.Dob)
+        </dt>
+        <dd class="col-sm-6">
+            @FormatDob(Model.Dob)
+        </dd>
+        <dt class = "col-sm-6">
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd class = "col-sm-6">
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt class = "col-sm-6">
+            @Html.DisplayNameFor(model => model.MemberTypeName)
+        </dt>
+        <dd class = "col-sm-6">
+            @Html.DisplayFor(model => model.MemberTypeName)
+        </dd>
+        <dt class = "col-sm-6">
+            @Html.DisplayNameFor(model => model.JoinDate)
+        </dt>
+        <dd class = "col-sm-6">
+            @Html.DisplayFor(model => model.JoinDate)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.MemberId }) |
+    @Html.ActionLink("ChangePassword", "ChangePassword", "ChangePassword", new { username = ViewBag.Username })
+</div>
+@functions {
+    public string FormatDob(DateTime dob)
+    {
+        return dob.ToString("dd/MM/yyyy");
+    }
+}
