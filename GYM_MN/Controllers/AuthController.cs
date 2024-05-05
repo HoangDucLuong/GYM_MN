@@ -31,9 +31,9 @@ namespace GYM_MN.Controllers
         public IActionResult Login(LoginDto loginDTO)
         {
             // Authenticate user
-            var user = _context.Users.SingleOrDefault(tk => tk.Username == loginDTO.Username);
+            var user = _context.Users.SingleOrDefault(tk => tk.Username == loginDTO.Username && tk.Password == loginDTO.Password);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.Password))
+            if (user == null)// || !BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.Password))
             {
                 return Unauthorized(); // Unauthorized if user not found or invalid credentials
             }

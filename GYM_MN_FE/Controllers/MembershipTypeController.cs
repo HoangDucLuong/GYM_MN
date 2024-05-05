@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using GYM_MN_FE.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -36,5 +37,29 @@ namespace GYM_MN_FE.Controllers
         }
 
         // Thêm các action khác tại đây nếu cần
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewData["IsLoggedIn"] = true;
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Create(MembershipTypeViewModel member)
+        {
+            var json = JsonConvert.SerializeObject(member);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await _httpClient.PostAsync(_httpClient.BaseAddress + "/MembershipTypes/PostMembershipType", content);
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Member created successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to create member.";
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
