@@ -19,15 +19,13 @@ namespace GYM_MN_FE.Controllers
         }
 
         public IActionResult Login()
-        {
-            ViewData["IsLoggedIn"] = false;
+        {      
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel login)
         {
-            ViewData["IsLoggedIn"] = true;
             if (!ModelState.IsValid)
             {
                 return View(login);
@@ -45,14 +43,26 @@ namespace GYM_MN_FE.Controllers
                 // Lưu token vào session hoặc cookie
                 HttpContext.Session.SetString("Token", token.Token);
 
-                // Cập nhật trạng thái đăng nhập sau khi đăng nhập thành công
-                ViewData["IsLoggedIn"] = true;
+                // Kiểm tra vai trò của người dùng
+                var userRoleId = GetUserRoleIdFromToken();
 
-                return RedirectToAction("Index", "MembershipTypes"); // Chuyển hướng đến trang chính sau khi đăng nhập thành công
+                // Kiểm tra xem vai trò có phù hợp không
+                if (userRoleId == 3)
+                {
+                    // Cập nhật trạng thái đăng nhập sau khi đăng nhập thành công
+                    ViewData["IsLoggedIn"] = true;
+
+                    return RedirectToAction("Index", "Home"); // Chuyển hướng đến trang chính sau khi đăng nhập thành công
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Access denied. You do not have permission to access this page.";
+                    return RedirectToAction("Login");
+                }
             }
             else
             {
-                ModelState.AddModelError("Password", "Invalid password."); // Thêm thông báo lỗi vào ModelState cho trường Password
+                ModelState.AddModelError("Password", "Invalid password.");
                 return View(login);
             }
         }
@@ -100,14 +110,40 @@ namespace GYM_MN_FE.Controllers
                 return View(register);
             }
         }
-
-
+        [HttpGet]
         [HttpPost]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            // Xóa token từ session hoặc cookie
-            // Ví dụ: HttpContext.Session.Remove("Token");
+            // Gửi yêu cầu đến endpoint 'logout' của API backend để đăng xuất
+            HttpResponseMessage response = await _httpClient.PostAsync("Logout/logout", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Xóa token từ session hoặc cookie
+                HttpContext.Session.Remove("Token");
+            }
+
             return RedirectToAction("Login");
+        }
+
+        private int? GetUserRoleIdFromToken()
+        {
+            var token = HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var roleIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "role");
+
+                if (roleIdClaim != null && int.TryParse(roleIdClaim.Value, out int roleId))
+                {
+                    return roleId;
+                }
+            }
+
+            return null;
         }
     }
 }

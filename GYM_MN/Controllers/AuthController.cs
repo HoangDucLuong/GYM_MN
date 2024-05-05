@@ -133,10 +133,13 @@ namespace GYM_MN.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            // In a stateless JWT-based authentication system, logout operation usually does not require any action
-            // Client can simply discard the JWT token
+            // Xóa token từ session hoặc cookie
+            HttpContext.Session.Remove("Token"); // hoặc HttpContext.Response.Cookies.Delete("Token")
+
+            // Trả về mã trạng thái thành công
             return Ok();
         }
+
 
         private string GenerateJWTToken(User user)
         {
@@ -147,8 +150,9 @@ namespace GYM_MN.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-            new Claim(ClaimTypes.Name, user.Username.ToString()), // Thêm claim cho username
-            new Claim("userId", user.UserId.ToString()) // Thêm claim cho userId
+            new Claim(ClaimTypes.Name, user.Username.ToString()),
+            new Claim("userId", user.UserId.ToString()),
+            new Claim(ClaimTypes.Role, user.RoleId.ToString()) 
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(120),
                 SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)

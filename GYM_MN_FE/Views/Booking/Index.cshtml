@@ -1,0 +1,91 @@
+﻿@using GYM_MN_FE_ADMIN.Models
+@model IEnumerable<GYM_MN_FE_ADMIN.Models.BookingViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Booking</h1>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="FilterByTrainer" method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Enter Trainer ID..." name="trainerId">
+                <button type="submit" class="btn btn-primary">Filter by Trainer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TrainerId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BookingDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MembershipTypeId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberTypeName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MemberId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TrainerId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BookingDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MembershipTypeId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MemberTypeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

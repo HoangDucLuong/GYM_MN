@@ -18,4 +18,5 @@ public partial class MembershipType
     public virtual ICollection<Member> Members { get; set; } = new List<Member>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
 }

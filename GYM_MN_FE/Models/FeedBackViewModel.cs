@@ -1,15 +1,12 @@
-﻿using System;
-
-namespace GYM_MN.Dtos
+﻿namespace GYM_MN_FE_ADMIN.Models
 {
-    public class FeedbackDto
+    public class FeedBackViewModel
     {
         public int FeedbackId { get; set; }
 
         public int? MemberId { get; set; }
-        public string? TrainerName { get; set; }
         public string? MemberName { get; set; }
-
+        public string? TrainerName { get; set; }
         public int? TrainerId { get; set; }
 
         public DateTime? FeedbackDate { get; set; }

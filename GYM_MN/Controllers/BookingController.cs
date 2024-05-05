@@ -73,15 +73,89 @@ namespace GYM_MN.Controllers
                 TrainerId = bookingDto.TrainerId,
                 MembershipTypeId = bookingDto.MembershipTypeId,
                 BookingDate = bookingDto.BookingDate,
-                StartDate = bookingDto.StartDate, 
-                EndDate = bookingDto.EndDate,     
+                StartDate = bookingDto.StartDate,
+                EndDate = bookingDto.EndDate,
                 Status = bookingDto.Status
             };
 
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            return StatusCode(201);
+            // Cập nhật thông tin thành viên sau khi tạo booking
+            var member = await _context.Members.FirstOrDefaultAsync(m => m.MemberId == bookingDto.MemberId);
+            if (member != null)
+            {
+                member.MembershipTypeId = bookingDto.MembershipTypeId; // Cập nhật MembershipTypeId của thành viên
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                // Xử lý trường hợp không tìm thấy thành viên
+                return NotFound("Member not found");
+            }
+
+            return Ok(bookingDto);
+        }
+
+
+        // GET: api/Booking/GetBookingByMemberId/5
+        [HttpGet("GetBookingByMemberId/{memberId}")]
+        public async Task<ActionResult<IEnumerable<BookingDto>>> GetBookingByMemberId(int memberId)
+        {
+            var bookings = await _context.Bookings
+                .Include(m => m.MembershipType)
+                .Include(m => m.Trainer)
+                .Where(b => b.MemberId == memberId)
+                .Select(b => new BookingDto
+                {
+                    MemberId = b.MemberId,
+                    TrainerId = b.TrainerId,
+                    FullName = b.Trainer.FullName,
+                    MembershipTypeId = b.MembershipTypeId,
+                    MemberTypeName = b.MembershipType.TypeName,
+                    BookingDate = b.BookingDate,
+                    StartDate = b.StartDate,
+                    EndDate = b.EndDate,
+                    Status = b.Status
+                })
+                .ToListAsync();
+
+            if (bookings == null || bookings.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return bookings;
+        }
+
+        // GET: api/Booking/GetBookingByTrainerId/5
+        [HttpGet("GetBookingByTrainerId/{trainerId}")]
+        public async Task<ActionResult<IEnumerable<BookingDto>>> GetBookingByTrainerId(int trainerId)
+        {
+            var bookings = await _context.Bookings
+                .Where(b => b.TrainerId == trainerId)
+                .Include(m => m.Member)
+                .Include(m => m.MembershipType)
+                .Select(b => new BookingDto
+                {
+                    MemberId = b.MemberId,
+                    FullName = b.Member.FullName,
+                    TrainerId = b.TrainerId,
+                    MembershipTypeId = b.MembershipTypeId,
+                    MemberTypeName = b.MembershipType.TypeName,
+                    BookingDate = b.BookingDate,
+                    StartDate = b.StartDate,
+                    EndDate = b.EndDate,
+                    Status = b.Status
+                })
+                .ToListAsync();
+
+            if (bookings == null || bookings.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return bookings;
         }
 
 

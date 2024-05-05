@@ -1,16 +1,15 @@
-﻿namespace GYM_MN.Dtos
+﻿namespace GYM_MN_FE_TRAINER.Models
 {
-    public class BookingDto
-    { 
+    public class BookingViewModel
+    {
         public int? MemberId { get; set; }
         public int? TrainerId { get; set; }
-        public DateTime? BookingDate { get; set; }
+        public DateTime? BookingDate { get; set; } = DateTime.Now;
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public string? Status { get; set; }
+        public string Status { get; set; } = "Waitting";
         public int? MembershipTypeId { get; set; }
         public string? MemberTypeName { get; set; }
         public string? FullName { get; set; }
-
     }
 }

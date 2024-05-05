@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GYM_MN.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class FeedbackController : ControllerBase
     {
@@ -25,9 +25,14 @@ namespace GYM_MN.Controllers
         public async Task<ActionResult<IEnumerable<FeedbackDto>>> GetFeedbacks()
         {
             var feedbacks = await _context.Feedbacks
+                .Include(f => f.Trainer)
+                .Include(f => f.Member)
                 .Select(f => new FeedbackDto
+                
                 {
                     FeedbackId = f.FeedbackId,
+                    TrainerName = f.Trainer.FullName,
+                    MemberName = f.Member.FullName,
                     MemberId = f.MemberId,
                     TrainerId = f.TrainerId,
                     FeedbackDate = f.FeedbackDate,
@@ -73,6 +78,7 @@ namespace GYM_MN.Controllers
             }
 
             var feedback = new Feedback
+
             {
                 MemberId = feedbackDto.MemberId,
                 TrainerId = feedbackDto.TrainerId,

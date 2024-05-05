@@ -42,6 +42,24 @@ namespace GYM_MN.Controllers
 
             return trainers;
         }
+        [HttpGet("trainerid/{userId}")]
+        public async Task<ActionResult<TrainerDto>> GetTrainerIdFromUserId(int userId)
+        {
+            var trainer = await _context.Trainers.FirstOrDefaultAsync(m => m.UserId == userId);
+
+            if (trainer == null)
+            {
+                return NotFound(); // Trả về 404 nếu không tìm thấy thành viên với UserID tương ứng
+            }
+
+            var trainerDto = new TrainerDto
+            {
+                UserId = trainer.UserId,
+                TrainerId = trainer.TrainerId,
+            };
+
+            return trainerDto;
+        }
 
         // GET: api/Trainers/5
         [HttpGet("{id}")]
@@ -176,8 +194,83 @@ namespace GYM_MN.Controllers
 
             return CreatedAtAction(nameof(GetTrainer), new { id = trainer.TrainerId }, trainer);
         }
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<TrainerDto>> GetTrainerByUserId(int userId)
+        {
+            var trainer = await _context.Trainers 
+        .FirstOrDefaultAsync(m => m.UserId == userId);
 
-       
+            if (trainer == null)
+            {
+                return NotFound();
+            }
+
+            var trainerDto = new TrainerDto
+            {
+                UserId = trainer.UserId,
+                TrainerId = trainer.TrainerId,
+                FullName = trainer.FullName,
+                Dob = trainer.Dob,
+                Email = trainer.Email,
+                Phone = trainer.Phone,
+                Gender = trainer.Gender,         
+                Specialization = trainer.Specialization,
+                WorkStartTime = trainer.WorkStartTime,
+                WorkEndTime = trainer.WorkEndTime,
+            };
+
+            return trainerDto;
+        }
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> PutTrainerByUserId(int userId, TrainerDto trainerDto)
+        {
+            var trainer = await _context.Trainers.FirstOrDefaultAsync(m => m.UserId == userId);
+
+            if (trainer == null)
+            {
+                return NotFound();
+            }
+
+            trainer.FullName = trainerDto.FullName;
+            trainer.Email = trainerDto.Email;
+            trainer.Phone = trainerDto.Phone;
+            trainer.Gender = trainerDto.Gender;
+            trainer.Dob = trainerDto.Dob;
+            trainer.Specialization = trainerDto.Specialization;
+            trainer.WorkStartTime = trainerDto.WorkStartTime;
+            trainer.WorkEndTime = trainerDto.WorkEndTime;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TrainerExists(trainer.TrainerId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            // Trả về NoContent với thông tin về thành viên sau khi cập nhật
+            return NoContent();
+        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<int>>> GetTrainerIds()
+        {
+            try
+            {
+                var trainerIds = await _context.Trainers.Select(t => t.TrainerId).ToListAsync();
+                return trainerIds;
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
+            }
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTrainer(int id)

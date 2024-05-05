@@ -1,4 +1,4 @@
-﻿using GYM_MN_FE_MEMBER.Models;
+﻿using GYM_MN_FE_TRAINER.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -8,8 +8,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GYM_MN_FE_MEMBER.Controllers
-{   
+namespace GYM_MN_FE_TRAINER.Controllers
+{
     public class BookingController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -22,10 +22,10 @@ namespace GYM_MN_FE_MEMBER.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
         [HttpGet]
-        public async Task<IActionResult> GetBookingsByMemberId()
+        public async Task<IActionResult> GetBookingsByTrainerId()
         {
             ViewData["IsLoggedIn"] = true;
-            // Lấy UserID từ token
+            
             var userId = GetUserIdFromToken();
 
             if (userId == null)
@@ -34,8 +34,8 @@ namespace GYM_MN_FE_MEMBER.Controllers
             }
 
             // Lấy MemberId từ UserId
-            var memberId = await GetMemberIdFromUserId(userId.Value);
-            if (memberId == null)
+            var trainerId = await GetTrainerIdFromUserId(userId.Value);
+            if (trainerId == null)
             {
                 // Xử lý trường hợp không thành công
                 return View("Error");
@@ -44,7 +44,7 @@ namespace GYM_MN_FE_MEMBER.Controllers
             try
             {
                 // Gửi yêu cầu GET đến API để lấy danh sách đặt phòng của thành viên với MemberId tương ứng
-                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Booking/GetBookingByMemberId/GetBookingByMemberId/{memberId}");
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Booking/GetBookingByTrainerId/GetBookingByTrainerId/{trainerId}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -81,7 +81,7 @@ namespace GYM_MN_FE_MEMBER.Controllers
             }
 
             // Lấy MemberId từ UserId
-            var memberId = await GetMemberIdFromUserId(userId.Value);
+            var memberId = await GetTrainerIdFromUserId(userId.Value);
             if (memberId == null)
             {
                 // Xử lý trường hợp không thành công
@@ -122,14 +122,14 @@ namespace GYM_MN_FE_MEMBER.Controllers
             }
 
             // Gán MemberId từ UserId
-            var memberId = await GetMemberIdFromUserId(userId.Value);
-            if (memberId == null)
+            var trainerId = await GetTrainerIdFromUserId(userId.Value);
+            if (trainerId == null)
             {
                 // Xử lý trường hợp không thành công
                 return View("Error");
             }
 
-            bookingViewModel.MemberId = memberId.Value; // Gán MemberId bằng giá trị lấy được từ UserId
+            bookingViewModel.TrainerId = trainerId.Value; // Gán MemberId bằng giá trị lấy được từ UserId
 
             try
             {
@@ -179,9 +179,9 @@ namespace GYM_MN_FE_MEMBER.Controllers
             return null;
         }
 
-        private async Task<int?> GetMemberIdFromUserId(int userId)
+        private async Task<int?> GetTrainerIdFromUserId(int userId)
         {
-            var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Members/GetMemberIdFromUserId/memberid/{userId}");
+            var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Trainers/GetTrainerIdFromUserId/trainerid/{userId}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -189,9 +189,9 @@ namespace GYM_MN_FE_MEMBER.Controllers
                 var jsonObject = JObject.Parse(jsonString);
 
                 // Trích xuất memberId từ đối tượng JSON
-                var memberId = (int?)jsonObject["memberId"];
+                var trainerId = (int?)jsonObject["trainerId"];
 
-                return memberId;
+                return trainerId;
             }
             else
             {

@@ -1,26 +1,17 @@
-﻿@model IEnumerable<GYM_MN_FE_MEMBER.Models.BookingViewModel>
+﻿@model IEnumerable<GYM_MN_FE_TRAINER.Models.BookingViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "GetBookingsByTrainerId";
 }
 
-<h1>Index</h1>
+<h1>Member</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.MemberId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrainerId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MembershipTypeId)
-            </th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>          
             <th>
                 @Html.DisplayNameFor(model => model.BookingDate)
             </th>
@@ -33,6 +24,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberTypeName)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -40,13 +34,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.MemberId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrainerId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MembershipTypeId)
+                @Html.DisplayFor(modelItem => item.FullName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BookingDate)
@@ -61,9 +49,7 @@
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.DisplayFor(modelItem => item.MemberTypeName)
             </td>
         </tr>
 }

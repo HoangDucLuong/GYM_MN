@@ -11,17 +11,26 @@ namespace GYM_MN_FE_ADMIN.Controllers
     public class MembershipTypesController : Controller
     {
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public MembershipTypesController(IHttpClientFactory httpClientFactory)
+        public MembershipTypesController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new System.Uri("https://localhost:7178/api/");
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             ViewData["IsLoggedIn"] = true;
+            var userId = GetUserIdFromToken();
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             List<MembershipTypeViewModel> membershipTypeList = new List<MembershipTypeViewModel>();
 
             HttpResponseMessage response = await _httpClient.GetAsync("MembershipTypes/GetMembershipTypes");
@@ -39,6 +48,25 @@ namespace GYM_MN_FE_ADMIN.Controllers
             ViewData["IsLoggedIn"] = true;
             HttpContext.Session.SetInt32("SelectedMembershipTypeId", membershipTypeId);
             return RedirectToAction("Index", "Trainer");
+        }
+        private int? GetUserIdFromToken()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return userId;
+                }
+            }
+
+            return null;
         }
     }
 }

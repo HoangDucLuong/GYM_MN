@@ -1,4 +1,4 @@
-﻿using GYM_MN_FE_MEMBER.Models;
+﻿using GYM_MN_FE_ADMIN.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -8,8 +8,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GYM_MN_FE_MEMBER.Controllers
-{   
+namespace GYM_MN_FE_ADMIN.Controllers
+{
     public class BookingController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -21,6 +21,74 @@ namespace GYM_MN_FE_MEMBER.Controllers
             _httpClient.BaseAddress = new Uri("https://localhost:7178/api");
             _httpContextAccessor = httpContextAccessor;
         }
+        [HttpGet]
+        public async Task<IActionResult> GetTrainerIds()
+        {
+            ViewData["IsLoggedIn"] = true;
+
+            // Lấy danh sách các TrainerId từ API
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Trainers/GetTrainerIds");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    var trainerIds = JsonConvert.DeserializeObject<List<int>>(jsonString);
+
+                    return Json(trainerIds);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to retrieve trainer ids.";
+                    return View("Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View("Error");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            ViewData["IsLoggedIn"] = true;
+
+            // Lấy UserID từ token
+            var userId = GetUserIdFromToken();
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            try
+            {
+                // Gửi yêu cầu GET đến API để lấy danh sách các booking
+                var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Booking/GetBookings");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    var bookings = JsonConvert.DeserializeObject<List<BookingViewModel>>(jsonString);
+
+                    // Hiển thị danh sách các booking
+                    return View(bookings);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to retrieve bookings.";
+                    return View("Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View("Error");
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetBookingsByMemberId()
         {

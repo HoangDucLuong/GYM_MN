@@ -1,4 +1,4 @@
-﻿using GYM_MN_FE_MEMBER.Models;
+﻿using GYM_MN_FE_TRAINER.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -9,14 +9,14 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GYM_MN_FE_MEMBER.Controllers
+namespace GYM_MN_FE_TRAINER.Controllers
 {
-    public class MemberController : Controller
+    public class TrainerController : Controller
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public MemberController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+        public TrainerController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri("https://localhost:7178/api");
@@ -36,14 +36,14 @@ namespace GYM_MN_FE_MEMBER.Controllers
 
             try
             {
-                HttpResponseMessage memberResponse = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Members/GetMemberByUserId/{userId}");
+                HttpResponseMessage trainerResponse = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Trainers/GetTrainerByUserId/{userId}");
 
-                if (memberResponse.IsSuccessStatusCode)
+                if (trainerResponse.IsSuccessStatusCode)
                 {
-                    string memberData = await memberResponse.Content.ReadAsStringAsync();
-                    var member = JsonConvert.DeserializeObject<MemberViewModel>(memberData);
+                    string trainerData = await trainerResponse.Content.ReadAsStringAsync();
+                    var trainer = JsonConvert.DeserializeObject<TrainerViewModel>(trainerData); // Sử dụng MemberDto thay vì MemberViewModel
 
-                    return View(member);
+                    return View(trainer);
                 }
                 else
                 {
@@ -70,14 +70,14 @@ namespace GYM_MN_FE_MEMBER.Controllers
 
             try
             {
-                HttpResponseMessage memberResponse = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Members/GetMemberByUserId/{userId}");
+                HttpResponseMessage trainerResponse = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/Trainers/GetTrainerByUserId/{userId}");
 
-                if (memberResponse.IsSuccessStatusCode)
+                if (trainerResponse.IsSuccessStatusCode)
                 {
-                    string memberData = await memberResponse.Content.ReadAsStringAsync();
-                    var member = JsonConvert.DeserializeObject<MemberViewModel>(memberData); // Sử dụng MemberDto thay vì MemberViewModel
+                    string trainerData = await trainerResponse.Content.ReadAsStringAsync();
+                    var trainer = JsonConvert.DeserializeObject<TrainerViewModel>(trainerData); 
 
-                    return View(member);
+                    return View(trainer);
                 }
                 else
                 {
@@ -92,12 +92,12 @@ namespace GYM_MN_FE_MEMBER.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Edit(MemberViewModel member)
+        public async Task<IActionResult> Edit(TrainerViewModel trainer)
         {
             ViewData["IsLoggedIn"] = true;
             if (!ModelState.IsValid)
             {
-                return View(member);
+                return View(trainer);
             }
 
             try
@@ -108,11 +108,11 @@ namespace GYM_MN_FE_MEMBER.Controllers
                     return RedirectToAction("Login", "Auth");
                 }
 
-                var jsonMember = JsonConvert.SerializeObject(member);
-                var content = new StringContent(jsonMember, Encoding.UTF8, "application/json");
+                var jsonTrainer = JsonConvert.SerializeObject(trainer);
+                var content = new StringContent(jsonTrainer, Encoding.UTF8, "application/json");
 
                 // Gửi yêu cầu PUT đến endpoint API để chỉnh sửa thông tin thành viên
-                HttpResponseMessage response = await _httpClient.PutAsync($"{_httpClient.BaseAddress}/Members/PutMemberByUserId/{userId}", content);
+                HttpResponseMessage response = await _httpClient.PutAsync($"{_httpClient.BaseAddress}/Trainers/PutTrainerByUserId/{userId}", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -122,7 +122,7 @@ namespace GYM_MN_FE_MEMBER.Controllers
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
                     TempData["errorMessage"] = "Không thể cập nhật thông tin thành viên.";
-                    return View(member);
+                    return View(trainer);
                 }
             }
             catch (Exception ex)
@@ -131,7 +131,25 @@ namespace GYM_MN_FE_MEMBER.Controllers
                 return View("Error");
             }
         }
+        private int? GetUserIdFromToken()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
 
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return userId;
+                }
+            }
+
+            return null;
+        }
         private string GetIdFromToken()
         {
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");

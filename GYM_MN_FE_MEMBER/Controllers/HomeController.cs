@@ -15,6 +15,7 @@ namespace GYM_MN_FE_MEMBER.Controllers
 
         public IActionResult Index()
         {
+            ViewData["IsLoggedIn"] = true;
             return View();
         }
 

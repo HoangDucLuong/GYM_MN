@@ -13,6 +13,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
+                <a>ADMIN MANAGERMENT</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -31,10 +32,23 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="MembershipType" asp-action="Index">MembershipType</a>
                             </li>
                             <li class="nav-item">
-                                <form id="logoutForm" method="post" asp-controller="Auth" asp-action="Logout">
-                                    <button type="submit" class="nav-link text-dark" style="border: none; background-color: transparent; cursor: pointer;">Logout</button>
-                                </form>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Feedback" asp-action="Index">Feedback</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Booking" asp-action="Index">Booking</a>
+                            </li>
+                            @if (ViewData["IsLoggedIn"] != null && (bool)ViewData["IsLoggedIn"])
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Logout">Logout</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
+                                </li>
+                            }
                         }
                     </ul>
                 </div>

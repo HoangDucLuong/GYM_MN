@@ -1,0 +1,58 @@
+﻿@model GYM_MN_FE_MEMBER.Models.FeedBackViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>FeedBackViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group" hidden>
+                <label asp-for="MemberId" class="control-label" ></label>
+                <input asp-for="MemberId" class="form-control" />
+                <span asp-validation-for="MemberId" class="text-danger" ></span>
+            </div>
+            <div class="form-group" hidden>
+                <label asp-for="TrainerId" class="control-label" ></label>
+                <input asp-for="TrainerId" class="form-control" />
+                <span asp-validation-for="TrainerId" class="text-danger" ></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FeedbackDate" class="control-label"></label>
+                <input asp-for="FeedbackDate" class="form-control" hidden/>
+                <span asp-validation-for="FeedbackDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Rating" class="control-label"></label>
+                <select asp-for="Rating" class="form-control">
+                    <option value="">-- Select Rating --</option>
+                    <option value="1">1 star</option>
+                    <option value="2">2 stars</option>
+                    <option value="3">3 stars</option>
+                    <option value="4">4 stars</option>
+                    <option value="5">5 stars</option>
+                </select>
+                <span asp-validation-for="Rating" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Comment" class="control-label"></label>
+                <input asp-for="Comment" class="form-control" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

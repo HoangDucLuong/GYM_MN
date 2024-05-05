@@ -9,5 +9,7 @@
         public DateTime? EndDate { get; set; }
         public string Status { get; set; } = "Waitting";
         public int? MembershipTypeId { get; set; }
+        public string? MemberTypeName { get; set; }
+        public string? FullName { get; set; }
     }
 }

@@ -6,24 +6,33 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace GYM_MN_FE_ADMIN.Controllers
 {
     public class MemberController : Controller
     {
-        Uri baseAddress = new Uri("https://localhost:7178/api");
+        
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public MemberController()
+        public MemberController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = baseAddress;
+            _httpClient = httpClientFactory.CreateClient();
+            _httpContextAccessor = httpContextAccessor;
+            _httpClient.BaseAddress = new Uri("https://localhost:7178/api");
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             ViewData["IsLoggedIn"] = true;
+            var userId = GetUserIdFromToken();
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
             List<MemberViewModel> memberList = new List<MemberViewModel>();
 
             HttpResponseMessage response = _httpClient.GetAsync(_httpClient.BaseAddress + "/Members/GetMembers").Result;
@@ -136,6 +145,7 @@ namespace GYM_MN_FE_ADMIN.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            ViewData["IsLoggedIn"] = true;
             HttpResponseMessage response = _httpClient.DeleteAsync($"{_httpClient.BaseAddress}/Members/DeleteMember/{id}").Result;
             if (response.IsSuccessStatusCode)
             {
@@ -147,6 +157,25 @@ namespace GYM_MN_FE_ADMIN.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+        private int? GetUserIdFromToken()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return userId;
+                }
+            }
+
+            return null;
         }
     }
 }

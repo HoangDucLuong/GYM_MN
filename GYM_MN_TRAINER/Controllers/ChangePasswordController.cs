@@ -1,4 +1,4 @@
-﻿using GYM_MN_FE_MEMBER.Models;
+﻿using GYM_MN_FE_TRAINER.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GYM_MN_FE_MEMBER.Controllers
+namespace GYM_MN_FE_TRAINER.Controllers
 {
     public class ChangePasswordController : Controller
     {
@@ -42,31 +42,14 @@ namespace GYM_MN_FE_MEMBER.Controllers
 
             return null;
         }
-        private int? GetUserIdFromToken()
-        {
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
 
-            if (!string.IsNullOrEmpty(token))
-            {
-                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-
-                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
-
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    return userId;
-                }
-            }
-
-            return null;
-        }
 
         [HttpGet]
         public IActionResult ChangePassword()
         {
             ViewData["IsLoggedIn"] = true;
             var userId = GetUserIdFromToken();
+
             if (userId == null)
             {
                 return RedirectToAction("Login", "Auth");
@@ -79,6 +62,12 @@ namespace GYM_MN_FE_MEMBER.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             ViewData["IsLoggedIn"] = true;
+            var userId = GetUserIdFromToken();
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -86,11 +75,6 @@ namespace GYM_MN_FE_MEMBER.Controllers
 
             try
             {
-                var userId = GetUserIdFromToken();
-                if (userId == null)
-                {
-                    return RedirectToAction("Login", "Auth");
-                }
                 var username = GetUsernameFromToken();
 
                 if (string.IsNullOrEmpty(username))
@@ -109,7 +93,7 @@ namespace GYM_MN_FE_MEMBER.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return RedirectToAction("Details", "Member"); // Redirect to member details page after successful password change
+                    return RedirectToAction("Details", "Trainer"); // Redirect to member details page after successful password change
                 }
                 else
                 {
@@ -123,6 +107,26 @@ namespace GYM_MN_FE_MEMBER.Controllers
                 TempData["errorMessage"] = ex.Message;
                 return View("Error");
             }
+
+        }
+        private int? GetUserIdFromToken()
+        {
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "userId");
+
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return userId;
+                }
+            }
+
+            return null;
         }
     }
 }

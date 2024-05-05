@@ -13,7 +13,7 @@ builder.Services.AddAuthentication(options =>
     options.LoginPath = "/Auth/Login";
 })
 .AddIdentityCookies();
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
 
